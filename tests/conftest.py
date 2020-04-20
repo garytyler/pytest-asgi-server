@@ -1,22 +1,10 @@
-import os
 import random
 from string import ascii_lowercase, ascii_uppercase
 
-import aioredis
 import pytest
 from asgi_lifespan import LifespanManager
 from pytest_asgi_xclient.clients import PytestAsgiXClient
 from pytest_asgi_xclient.servers import PytestUvicornXServer, UvicornTestServerThread
-
-
-@pytest.fixture(autouse=True)
-@pytest.mark.asyncio
-async def flush_redis():
-    redis = await aioredis.create_redis(os.environ["REDIS_URL"])
-    await redis.flushall()
-    redis.close()
-    await redis.wait_closed()
-    yield
 
 
 @pytest.fixture
@@ -52,14 +40,7 @@ def xserver(xprocess, pytestconfig):
         pytestconfig=pytestconfig,
         xprocess=xprocess,
         appstr="tests.asgi_app:app",
-        env={
-            "SECRET_KEY": os.environ["SECRET_KEY"],
-            "ALLOWED_HOSTS": os.environ["ALLOWED_HOSTS"],
-            "DATABASE_URL": os.environ["DATABASE_URL"],
-            "REDIS_URL": os.environ["REDIS_URL"],
-            "BACKEND_CORS_ORIGINS": os.environ["BACKEND_CORS_ORIGINS"],
-            "PYTHONDONTWRITEBYTECODE": "1",
-        },
+        env={"PYTHONDONTWRITEBYTECODE": "1"},
     )
 
 
