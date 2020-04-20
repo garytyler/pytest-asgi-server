@@ -1,44 +1,51 @@
-# tests/_utils/test_utils/testapp.py
 import asyncio
+import json
 import os
+from typing import Any
 
 from broadcaster import Broadcast
-from fastapi import FastAPI
-from fastapi.websockets import WebSocket
-from starlette.concurrency import run_until_first_complete
+from starlette.applications import Starlette
+from starlette.endpoints import WebSocketEndpoint
+from starlette.responses import HTMLResponse
+from starlette.routing import Route, WebSocketRoute
+from starlette.websockets import WebSocket
 
 
-def get_app():
+def _get_app():
     broadcast = Broadcast(os.getenv("REDIS_URL"))
-    app = FastAPI(on_startup=[broadcast.connect], on_shutdown=[broadcast.disconnect])
 
-    @app.get("/api")
-    async def read_main():
-        return {"msg": "Hello World"}
+    async def get_message(request):
+        return HTMLResponse(json.dumps({"msg": "Hello World"}))
 
-    @app.websocket("/ws")
-    async def connect(websocket: WebSocket) -> None:
-        await websocket.accept()
-        await run_until_first_complete(
-            (channel_receive, {"websocket": websocket}),
-            (channel_send, {"websocket": websocket}),
-        )
+    class BroadcastConsumerWebSocket(WebSocketEndpoint):
+        encoding = "text"
+        channel_name = f"test-channel"
 
-    async def channel_receive(websocket):
-        print("channel_receive")
-        async for message in websocket.iter_text():
-            await broadcast.publish(channel="chatroom", message=message)
-            await asyncio.sleep(0.01)
+        async def on_connect(self, websocket: WebSocket) -> None:
+            await websocket.accept()
+            self.gathered_tasks = asyncio.gather(
+                self.send_from_channel_to_client(websocket)
+            )
 
-    async def channel_send(websocket):
-        print("channel_send")
-        async with broadcast.subscribe(channel="chatroom") as subscriber:
-            async for event in subscriber:
-                await asyncio.sleep(0.01)
-                await websocket.send_text(event.message)
-            await asyncio.sleep(0.01)
+        async def send_from_channel_to_client(self, websocket):
+            async with broadcast.subscribe(channel=self.channel_name) as subscriber:
+                async for event in subscriber:
+                    await websocket.send_text(event.message)
 
-    return app
+        async def on_receive(self, websocket: WebSocket, data: Any) -> None:
+            await broadcast.publish(channel=self.channel_name, message=data)
+
+        async def on_disconnect(self, websocket: WebSocket, close_code: int) -> None:
+            pass
+
+    return Starlette(
+        routes=[
+            Route("/api", endpoint=get_message),
+            WebSocketRoute("/ws", endpoint=BroadcastConsumerWebSocket),
+        ],
+        on_startup=[broadcast.connect],
+        on_shutdown=[broadcast.disconnect],
+    )
 
 
-app = get_app()
+app = _get_app()
