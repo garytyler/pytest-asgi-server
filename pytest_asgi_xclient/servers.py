@@ -188,7 +188,7 @@ if __name__ == "__main__":
         self.name = name
         self.appstr = appstr
         self.env = env
-        self.project_rootdir = os.path.abspath(pytestconfig.rootdir)
+        self.pytest_rootdir = os.path.abspath(pytestconfig.rootdir)
         self.script_path = tempfile.mkstemp()[1]
         self.server_process = PytestXProcessWrapper(
             xprocess=self.xprocess,
@@ -201,7 +201,7 @@ if __name__ == "__main__":
     def _get_process_env(self) -> dict:
         pypath = set(self.env.setdefault("PYTHONPATH", "").split(":"))
         pypath.union(set(sys.path))
-        pypath.add(self.project_rootdir)
+        pypath.add(self.pytest_rootdir)
         self.env["PYTHONPATH"] = ":".join(pypath)
         return self.env
 
@@ -210,7 +210,7 @@ if __name__ == "__main__":
         self.kwargs.setdefault("port", port)
         script_params = {
             "appstr": self.appstr,
-            "rootdir": self.project_rootdir,
+            "rootdir": self.pytest_rootdir,
             "kwargs": self.kwargs,
         }
         return [
