@@ -29,6 +29,30 @@ jobs:
           name: test-coverage
           path: ./coverage.xml
 
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Build
+        run: python -m poetry build
+
+      - name: Publish package
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}
+
   coverage:
     needs: test
     runs-on: ubuntu-latest
@@ -40,6 +64,5 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
-          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
           file: ./coverage.xml
           fail_ci_if_error: true
