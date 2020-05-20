@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 import inspect
 import json
@@ -74,11 +74,11 @@ class BaseUvicornTestServerFacade:
         }
         self._update_kwargs(**kwargs)
 
-    def __call__(self, **kwargs) -> BaseUvicornTestServerFacade:
+    def __call__(self, **kwargs) -> "BaseUvicornTestServerFacade":
         self._update_kwargs(**kwargs)
         return self
 
-    def __enter__(self) -> BaseUvicornTestServerFacade:
+    def __enter__(self) -> "BaseUvicornTestServerFacade":
         self.start()
         return self
 

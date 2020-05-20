@@ -12,7 +12,6 @@ async def get_message(request):
 
 
 class BroadcastWebSocket(WebSocketEndpoint):
-    encoding = "text"
     connected: list = []
 
     async def on_connect(self, websocket: WebSocket) -> None:

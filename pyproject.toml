@@ -1,3 +1,7 @@
+[build-system]
+requires = ["poetry >= 0.12, <1"]
+build-backend = "poetry.masonry.api"
+
 [tool.poetry]
 name = "pytest-asgi-xclient"
 version = "0.1.0"
@@ -7,14 +11,11 @@ license = "MIT"
 readme = 'README.md'
 repository = "https://github.com/garytyler/pytest-asgi-xclient"
 homepage = "https://github.com/garytyler/pytest-asgi-xclient"
-packages = [
-    { include = "asgi_xclient/**/*.py" },
-    { include = "tests", format = "sdist" },
-]
 classifiers = ["Framework :: Pytest"]
+packages = [{ include = "pytest_asgi_xclient" }]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.6.1"
 pytest = "^5.4.1"
 pytest-xprocess = "^0.13.1"
 pytest-asyncio = "^0.10.0"
@@ -29,3 +30,4 @@ flake8 = "^3.7.9"
 mypy = "^0.770"
 isort = "^4.3.21"
 starlette = "^0.13.3"
+pytest-cov = "^2.8.1"

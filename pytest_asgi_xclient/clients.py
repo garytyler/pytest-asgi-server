@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 import httpx
 import websockets
@@ -11,14 +11,14 @@ class PytestAsgiXClient(httpx.AsyncClient):
         self.xserver = xserver
         self.__instantiated = False
 
-    def __call__(self, *args, **kwargs) -> PytestAsgiXClient:
+    def __call__(self, *args, **kwargs) -> "PytestAsgiXClient":
         self.xserver.start()
         base_url = self.xserver.http_base_url
         super().__init__(base_url=base_url, *args, **kwargs)
         self.__instantiated = True
         return self
 
-    async def __aenter__(self) -> PytestAsgiXClient:
+    async def __aenter__(self) -> "PytestAsgiXClient":
         if not self.__instantiated:
             self.__call__()
         await super().__aenter__()
