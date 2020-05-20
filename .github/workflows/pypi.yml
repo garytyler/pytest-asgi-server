@@ -1,0 +1,25 @@
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  pypi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+          architecture: x64
+      - run: pip install tox
+      - run: pip install poetry
+      - run: tox
+      - if: ${{ success() }}
+        run: poetry build
+      - if: ${{ success() }}
+        uses: pypa/gh-action-pypi-publish@v1.0.0a0
+        with:
+          username: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
