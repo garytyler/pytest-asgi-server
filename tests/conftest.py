@@ -2,9 +2,8 @@ import random
 from string import ascii_lowercase, ascii_uppercase
 
 import pytest
-from asgi_lifespan import LifespanManager
-from pytest_asgi_xclient.clients import PytestAsgiXClient
-from pytest_asgi_xclient.servers import PytestUvicornXServer, UvicornTestServerThread
+
+pytest_plugins = "pytest_asgi_xclient"
 
 
 @pytest.fixture
@@ -15,40 +14,17 @@ def app():
 
 
 @pytest.fixture
-def server_thread_factory(app):
-    server_threads = []
-
-    def _server_thread_factory(*args, **kwargs):
-        server_thread = UvicornTestServerThread(app=app, *args, **kwargs)
-        server_threads.append(server_thread)
-        return server_thread
-
-    yield _server_thread_factory
-
-    for server_thread in server_threads:
-        server_thread.stop()
-
-
-@pytest.fixture
-def server_thread(server_thread_factory):
-    yield server_thread_factory()
-
-
-@pytest.fixture
-def xserver(xprocess, pytestconfig):
-    return PytestUvicornXServer(
-        pytestconfig=pytestconfig,
-        xprocess=xprocess,
-        appstr="tests.asgi_app:app",
-        env={"PYTHONDONTWRITEBYTECODE": "1"},
+def xserver(xserver_factory, app):
+    yield xserver_factory(
+        appstr="tests.asgi_app:app", env={"PYTHONDONTWRITEBYTECODE": "1"}
     )
 
 
 @pytest.fixture
-@pytest.mark.asyncio
-async def xclient(xserver, app):
-    async with LifespanManager(app):
-        yield PytestAsgiXClient(xserver=xserver)
+async def xclient(xclient, app):
+    yield await xclient(
+        app, appstr="tests.asgi_app:app", env={"PYTHONDONTWRITEBYTECODE": "1"}
+    )
 
 
 @pytest.fixture

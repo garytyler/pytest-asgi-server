@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "pytest-asgi-xclient"
 version = "0.1.0"
-description = ""
+description = "Process-based ASGI test client for pytest"
 authors = ["Gary Tyler <mail@garytyler.com>"]
 license = "MIT"
 readme = 'README.md'
@@ -11,6 +11,7 @@ packages = [
     { include = "asgi_xclient/**/*.py" },
     { include = "tests", format = "sdist" },
 ]
+classifiers = ["Framework :: Pytest"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
