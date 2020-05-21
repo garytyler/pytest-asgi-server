@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-asgi-server"
-version = "0.1.1"
+version = "0.2.0"
 description = "Convenient ASGI client/server fixtures for Pytest"
 authors = ["Gary Tyler <mail@garytyler.com>"]
 license = "MIT"
