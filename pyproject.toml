@@ -1,13 +1,13 @@
 [tool.poetry]
-name = "pytest-asgi-xclient"
+name = "pytest-asgi-server"
 version = "0.1.1"
-description = "Process-based ASGI test client for pytest"
+description = "Convenient ASGI client/server fixtures for Pytest"
 authors = ["Gary Tyler <mail@garytyler.com>"]
 license = "MIT"
 readme = 'README.md'
-repository = "https://github.com/garytyler/pytest-asgi-xclient"
-homepage = "https://github.com/garytyler/pytest-asgi-xclient"
-packages = [{ include = "pytest_asgi_xclient" }]
+repository = "https://github.com/garytyler/pytest-asgi-server"
+homepage = "https://github.com/garytyler/pytest-asgi-server"
+packages = [{ include = "pytest_asgi_server" }]
 classifiers = [
     "Framework :: Pytest",
     "Framework :: tox",

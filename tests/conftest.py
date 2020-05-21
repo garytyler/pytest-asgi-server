@@ -3,7 +3,7 @@ from string import ascii_lowercase, ascii_uppercase
 
 import pytest
 
-pytest_plugins = "pytest_asgi_xclient"
+pytest_plugins = "pytest_asgi_server"
 
 
 @pytest.fixture
