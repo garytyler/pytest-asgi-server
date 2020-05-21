@@ -15,22 +15,8 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: pip install tox
       - run: tox -e py # Run tox using the version of Python in `PATH`
-      - name: Persist coverage report
-        uses: actions/upload-artifact@v2
-        with:
-          name: test-coverage
-          path: ./coverage.xml
-  report_coverage:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Retreive coverage report
-        uses: actions/download-artifact@v2
-        with:
-          name: test-coverage
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.xml
-          fail_ci_if_error: true
