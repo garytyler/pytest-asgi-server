@@ -25,21 +25,21 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.6"
-pytest = "^5.4.1"
-pytest-xprocess = "^0.13.1"
-pytest-asyncio = "^0.10.0"
-httpx = "^0.12.1"
-asgi-lifespan = "^1.0.0"
-uvicorn = "^0.11.3"
-importlib_metadata = { version = "^1.6.0", python = "<3.8" }
-websockets = { version = "^8", python = "<3.8" }
+pytest = ">=5.4.1"
+pytest-xprocess = ">=0.13.1"
+pytest-asyncio = ">=0.10.0"
+httpx = ">=0.12.1"
+asgi-lifespan = ">=1.0.0"
+uvicorn = ">=0.11.3"
+importlib_metadata = { version = "^1.6.0", python = ">=3.8" }
+websockets = { version = "^8", python = ">=3.8" }
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
 flake8 = "^3.7.9"
 mypy = "^0.770"
 isort = "^4.3.21"
-starlette = "^0.13.3"
+starlette = ">=0.13.3"
 pytest-cov = "^2.8.1"
 
 [build-system]
