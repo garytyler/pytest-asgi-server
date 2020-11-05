@@ -7,15 +7,17 @@ on:
 jobs:
   pypi:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: "3.8"
-          architecture: x64
+          python-version: ${{ matrix.python-version }}
       - run: pip install tox
       - run: pip install poetry
-      - run: tox
+      - run: tox -e py
       - if: ${{ success() }}
         run: poetry build
       - if: ${{ success() }}
