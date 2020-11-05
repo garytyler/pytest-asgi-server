@@ -19,7 +19,6 @@ jobs:
       - if: ${{ success() }}
         run: poetry build
       - if: ${{ success() }}
-        uses: pypa/gh-action-pypi-publish@v1.0.0a0
+        uses: pypa/gh-action-pypi-publish@v1.4.1
         with:
-          username: __token__
           password: ${{ secrets.PYPI_TOKEN }}
