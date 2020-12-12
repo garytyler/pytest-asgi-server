@@ -238,7 +238,7 @@ if __name__ == "__main__":
             else:
                 warnings.warn(
                     AddressAlreadyInUseWarning(
-                        f"{__class__.__name__} aborted on start. {str(err)}"
+                        f"{self.__class__.__name__} aborted on start. {str(err)}"
                     )
                 )
         else:
