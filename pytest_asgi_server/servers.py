@@ -8,12 +8,14 @@ import sys
 import tempfile
 import threading
 import time
+import warnings
 from typing import Any, Dict, Optional, Sequence
 
 import uvicorn
 from xprocess import ProcessStarter, XProcess
 
-from .utils import get_unused_tcp_port
+from .errors import AddressAlreadyInUseException, AddressAlreadyInUseWarning
+from .utils import get_unused_tcp_port, is_port_in_use
 
 log = logging.getLogger(__name__)
 
@@ -49,7 +51,7 @@ class PytestXProcessWrapper:
 
             self.xprocess.ensure(self.name, Starter)
             self.xprocess_info = self.xprocess.getinfo(self.name)
-        if not self.is_alive():
+        if not self.is_alive():  # Use looping check and timeout
             time.sleep(0.1)
 
     def stop(self) -> None:
@@ -102,8 +104,14 @@ class BaseUvicornTestServerFacade:
             value = "off" if value is False else "on" if value is True else value
         self.kwargs[key] = value
 
+    def check_address_in_use(self) -> None:
+        host = self.kwargs["host"]
+        port = self.kwargs["port"]
+        if is_port_in_use(host=host, port=port):
+            raise AddressAlreadyInUseException(host=host, port=port)
+
     def start(self) -> None:
-        raise NotImplementedError
+        self.check_address_in_use()
 
     def stop(self) -> None:
         raise NotImplementedError
@@ -179,15 +187,17 @@ if __name__ == "__main__":
         pytestconfig,
         xprocess: XProcess,
         appstr: str,
-        name: str = "test-server-process",
+        name: str = None,
         env: Dict[str, Any] = {},
+        raise_if_used_port: bool = True,
         **kwargs,
     ):
         super().__init__(**kwargs)
         self.xprocess = xprocess
-        self.name = name
         self.appstr = appstr
+        self.name = name if name else appstr
         self.env = env
+        self.raise_if_used_port = raise_if_used_port
         self.pytest_rootdir = os.path.abspath(pytestconfig.rootdir)
         self.script_path = tempfile.mkstemp()[1]
         self.server_process = PytestXProcessWrapper(
@@ -220,10 +230,22 @@ if __name__ == "__main__":
         ]
 
     def start(self) -> None:
-        if not self.server_process.is_alive():
-            with open(self.script_path, "w") as f:
-                f.write(self.run_script)
-        self.server_process.start()
+        try:
+            super().start()
+        except AddressAlreadyInUseException as err:
+            if self.raise_if_used_port:
+                raise err
+            else:
+                warnings.warn(
+                    AddressAlreadyInUseWarning(
+                        f"{__class__.__name__} aborted on start. {str(err)}"
+                    )
+                )
+        else:
+            if not self.server_process.is_alive():
+                with open(self.script_path, "w") as f:
+                    f.write(self.run_script)
+            self.server_process.start()
 
     def stop(self) -> None:
         self.server_process.stop()
@@ -269,8 +291,7 @@ class UvicornTestServerThread(BaseUvicornTestServerFacade):
                 )
 
             def install_signal_handlers_monkeypatch(self):
-                """https://github.com/encode/uvicorn/blob/9d9f8820a8155e36dcb5e4d4023f470e51aa4e03/tests/test_main.py#L21
-                """
+                """https://github.com/encode/uvicorn/blob/9d9f8820a8155e36dcb5e4d4023f470e51aa4e03/tests/test_main.py#L21"""
                 pass
 
             uvicorn.Server.install_signal_handlers = install_signal_handlers_monkeypatch

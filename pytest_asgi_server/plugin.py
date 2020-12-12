@@ -27,10 +27,14 @@ def server_thread(server_thread_factory):
 
 @pytest.fixture
 def xserver_factory(xprocess, pytestconfig):
-    def _xserver_factory(appstr, env):
+    def _xserver_factory(appstr, env, **kwargs):
         nonlocal xprocess, pytestconfig
         return PytestUvicornXServer(
-            pytestconfig=pytestconfig, xprocess=xprocess, appstr=appstr, env=env,
+            pytestconfig=pytestconfig,
+            xprocess=xprocess,
+            appstr=appstr,
+            env=env,
+            **kwargs
         )
 
     yield _xserver_factory
